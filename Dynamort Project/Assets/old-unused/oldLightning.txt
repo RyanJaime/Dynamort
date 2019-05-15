@@ -1,0 +1,209 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Lightning : MonoBehaviour
+{
+    public bool debug = true;
+    public ParticleSystem lightningPrefab;
+    private ParticleSystem lightningPS;
+    public Camera cam;
+    public float fdelay = 0.1f;
+    private WaitForSeconds wait, holdOn;
+    private Vector2 randomDirection, randomPoint, mixedPointDirection, previousDrawnPoint, drawnPoint, hit2dPoint, hit2dNormal,
+            currentMixedPoint,//   = headWorld, 
+            previousMixedPoint,//  = headWorld, 
+            previousRandomPoint,// = headWorld,
+            reflectionDirection = Vector2.up;
+    bool endPlayerInput = false, collided  = true;
+    float mixAmount;
+    float swipeSpeed = 0.0f;
+    void Start(){
+        wait = new WaitForSeconds(fdelay);
+        holdOn = new WaitForSeconds(fdelay*10);
+    }
+
+    //public void zap(List<Vector2> playerInputPoint, float playerHoldDownChargeTime, float maxChargeTime){  StartCoroutine(zapCo(playerInputPoint, playerHoldDownChargeTime, maxChargeTime)); }
+    public void zap(Vector2 playerInputPoint, float playerHoldDownChargeTime, float maxChargeTime){  StartCoroutine(zapCo(playerInputPoint, playerHoldDownChargeTime, maxChargeTime)); }
+
+    public IEnumerator zapCo(Vector2 playerInputPoint, float playerHoldDownChargeTime, float maxChargeTime){
+        reflectionDirection = Vector2.up;
+
+        Vector2 origin = new Vector2(35,0);
+
+        lightningPS = Instantiate(lightningPrefab, origin, Quaternion.identity);
+        emitLightningPathParticle(lightningPS, origin);
+
+        endPlayerInput = collided = false;
+        float power = (playerHoldDownChargeTime > maxChargeTime) ? maxChargeTime : playerHoldDownChargeTime;
+        Debug.DrawLine(origin, playerInputPoint, Color.red, 5f);
+        drawPlayerChosenDirection(origin, playerInputPoint, power);
+
+        //GetComponentInChildren<SwipeInput>().inputPath.Clear();
+        for (int i = 0; i < 100; i++) {
+            power = drawRandomPathAndBounces(power);
+            yield return holdOn;
+        }
+        yield return null;
+    }
+    private void drawPlayerChosenDirection(Vector2 origin, Vector2 playerInputPoint, float power){
+        power *= 15;
+        print("power: " + power);
+        Vector2 drawnDirectionFromOrigin = (playerInputPoint - origin).normalized;
+        Ray2D ray = new Ray2D(origin, drawnDirectionFromOrigin);
+        RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, power);
+
+        if(hit.collider != null){
+            print("WEEW");
+            endPlayerInput = collided = true;
+            hit2dPoint          = (Vector2) hit.point;
+            hit2dNormal         = (Vector2) hit.normal;
+            Vector2 dir         = hit2dPoint - ray.origin;
+            reflectionDirection = Vector2.Reflect( dir, hit2dNormal);
+            previousMixedPoint  = currentMixedPoint = hit2dPoint + reflectionDirection;
+            emitLightningPathParticle(lightningPS, hit2dPoint + hit2dNormal * 0.1f);
+            if(debug) { displayDebugDrawsAndLogs(1); }
+        }
+        else{
+            print(":/");
+
+            currentMixedPoint = origin + (drawnDirectionFromOrigin *power);
+            emitLightningPathParticle(lightningPS, currentMixedPoint);
+            previousMixedPoint = currentMixedPoint;
+        }
+    }
+    private float drawRandomPathAndBounces(float power){
+        if(collided){ // handle reflection
+            Ray2D ray = new Ray2D(hit2dPoint + (hit2dNormal * 0.1f), currentMixedPoint-hit2dPoint + (hit2dNormal * 0.1f));
+            float magnitude = (currentMixedPoint - (hit2dPoint + (hit2dNormal * 0.1f))).sqrMagnitude;
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, magnitude);
+
+            if(hit.collider != null){ // bounced off one wall into another wall
+                Vector2 previousHit2dPoint = hit2dPoint; // store previous hit
+                Vector2 previousHit2dNormal = hit2dNormal; // store previous normal
+                hit2dPoint  = (Vector2) hit.point; // update hit
+                hit2dNormal = (Vector2) hit.normal; // update normal
+                Debug.DrawLine(previousHit2dPoint, hit2dPoint, Color.cyan,3); //print("bounced off one wall into another wall");
+                reflectionDirection = Vector2.Reflect((hit2dPoint - previousHit2dPoint), hit2dNormal);
+                currentMixedPoint   = hit2dPoint + reflectionDirection;
+                emitLightningPathParticle(lightningPS, hit2dPoint);
+                //if(debug) { displayDebugDrawsAndLogs(2); }
+            } else{ // bounced off wall into space
+                previousMixedPoint = currentMixedPoint;
+                emitLightningPathParticle(lightningPS, previousMixedPoint);
+                collided = false;
+            }
+        }
+        else{ // draw random ray 
+            randomDirection = (Random.insideUnitCircle + reflectionDirection).normalized;
+            randomPoint = previousMixedPoint + randomDirection * power;
+
+            Ray2D ray = new Ray2D(previousMixedPoint, randomDirection);
+            float magnitude = (randomPoint - previousMixedPoint).sqrMagnitude;
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, magnitude);
+
+            if(hit.collider != null){
+                hit2dPoint  = (Vector2) hit.point;
+                hit2dNormal = (Vector2) hit.normal;
+                reflectionDirection = Vector2.Reflect( randomDirection, hit2dNormal);
+                emitLightningPathParticle(lightningPS, hit2dPoint);
+                collided = true;
+            }
+            else{
+                emitLightningPathParticle(lightningPS, randomPoint);
+                previousMixedPoint = randomPoint;
+            }
+        }
+        return power;
+    }
+    private void emitLightningPathParticle(ParticleSystem lightningPS, Vector2 particlePos){
+        ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();   // Create head EmitParams,
+        emit.position = particlePos;
+        lightningPS.Emit(emit, 1);
+    }
+    private void displayDebugDrawsAndLogs(int c){
+        switch (c) {
+        case 0:
+            Debug.DrawLine(previousMixedPoint, drawnPoint, Color.red, 3f);
+            Debug.DrawLine(previousMixedPoint, currentMixedPoint, Color.yellow, 3f);
+            Debug.DrawLine(previousRandomPoint, randomPoint, Color.green, 3f);
+            break;
+        case 1:
+            //print("hit2dNormal: (" +hit2dNormal.x + ", " + hit2dNormal.y + "). Mag: " + hit2dNormal.magnitude);
+            Debug.DrawLine(previousMixedPoint, hit2dPoint, Color.gray, 3f); // ray to be reflected
+            Debug.DrawLine(hit2dPoint, hit2dPoint + hit2dNormal, Color.magenta, 3f); // normal to reflect over
+            Debug.DrawLine(hit2dPoint, hit2dPoint + reflectionDirection, Color.white, 3f); // reflection
+            break;
+        case 2:
+            Debug.DrawLine(currentMixedPoint, hit2dPoint, Color.gray, 3f); // ray to be reflected
+            Debug.DrawLine(hit2dPoint, hit2dPoint + hit2dNormal, Color.magenta, 3f); // normal to reflect over
+            Debug.DrawLine(hit2dPoint, hit2dPoint + reflectionDirection, Color.white, 3f); // reflection
+            break;
+        }
+
+    }
+    public IEnumerator zapCo2(List<Vector2> playerInputPath, float playerHoldDownChargeTime, float maxChargeTime){
+        int n = playerInputPath.Count-1;
+        Vector2 headWorld = cam.ScreenToWorldPoint(new Vector3(playerInputPath[0].x, playerInputPath[0].y, cam.nearClipPlane));
+        Vector2 tailWorld = cam.ScreenToWorldPoint(new Vector3(playerInputPath[n].x, playerInputPath[n].y, cam.nearClipPlane));
+        previousMixedPoint = previousDrawnPoint = previousRandomPoint = headWorld;
+        reflectionDirection = Vector2.up;
+
+        float tapDeltaDist = (tailWorld - headWorld).sqrMagnitude;
+        //swipeSpeed = tapDeltaDist/tapDeltaTime * 0.001f;
+        print("swipeSpeed: " + swipeSpeed);
+
+        lightningPS = Instantiate(lightningPrefab, headWorld, Quaternion.identity);
+        emitLightningPathParticle(lightningPS, headWorld);
+
+        endPlayerInput = collided = false;
+        float power = (playerHoldDownChargeTime > maxChargeTime) ? maxChargeTime : playerHoldDownChargeTime;
+        
+        for (int i = 1; i < playerInputPath.Count; i++){
+            if(!endPlayerInput){   
+                drawPlayerPath(playerInputPath[i]);
+                yield return wait;
+            }
+        } 
+        GetComponentInChildren<SwipeInput>().inputPath.Clear();
+        for (int i = 0; i < 1000; i++) {
+            //drawRandomPathAndBounces();
+            yield return holdOn;
+        }
+        yield return null;
+    }
+    private void drawPlayerPath(Vector2 currentDrawPoint){
+        drawnPoint = cam.ScreenToWorldPoint(new Vector3(currentDrawPoint.x, currentDrawPoint.y, cam.nearClipPlane));
+        
+        randomDirection = (Random.insideUnitCircle + reflectionDirection).normalized;
+        randomPoint = previousMixedPoint + randomDirection * swipeSpeed;
+
+        mixAmount = (endPlayerInput) ? 1 : 0.0f; // If collision, use reflections instead of player drawn playerInputPath.
+        currentMixedPoint = Vector2.Lerp(drawnPoint, randomPoint, mixAmount);
+        
+        if(debug) { displayDebugDrawsAndLogs(0); }
+
+        previousDrawnPoint = drawnPoint;
+        previousRandomPoint = randomPoint; 
+
+        mixedPointDirection = currentMixedPoint - previousMixedPoint;
+        Ray2D ray = new Ray2D(previousMixedPoint, mixedPointDirection);
+        float magnitude = (currentMixedPoint - previousMixedPoint).sqrMagnitude;
+        RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, magnitude);// + 0.1f);
+
+        if(hit.collider != null){
+            endPlayerInput = collided = true;
+            hit2dPoint          = (Vector2) hit.point;
+            hit2dNormal         = (Vector2) hit.normal;
+            reflectionDirection = Vector2.Reflect( mixedPointDirection, hit2dNormal);
+            currentMixedPoint   = hit2dPoint + reflectionDirection;
+            emitLightningPathParticle(lightningPS, hit2dPoint + hit2dNormal * 0.1f);
+            if(debug) { displayDebugDrawsAndLogs(1); }
+        }
+        else{ 
+            emitLightningPathParticle(lightningPS, currentMixedPoint);
+            //print("Didn't collide: " + currentMixedPoint+ " mixedPointDirection: " + mixedPointDirection);
+            previousMixedPoint = currentMixedPoint;
+        }
+    }
+}
