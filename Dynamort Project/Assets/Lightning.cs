@@ -19,10 +19,9 @@ public class Lightning : MonoBehaviour
     float swipeSpeed = 0.0f;
     void Start(){
         wait = new WaitForSeconds(fdelay);
-        holdOn = new WaitForSeconds(fdelay*10);
+        holdOn = new WaitForSeconds(fdelay*5);
     }
 
-    //public void zap(List<Vector2> playerInputPoint, float playerHoldDownChargeTime, float maxChargeTime){  StartCoroutine(zapCo(playerInputPoint, playerHoldDownChargeTime, maxChargeTime)); }
     public void zap(Vector2 playerInputPoint, float magnitude){  StartCoroutine(zapCo(playerInputPoint, magnitude)); }
     struct RayData {
     public Vector2 origin, direction;
@@ -39,16 +38,16 @@ public class Lightning : MonoBehaviour
         Vector2 origin = new Vector2(35,0);
 
         lightningPS = Instantiate(lightningPrefab, origin, Quaternion.identity);
-        emitLightningPathParticle(lightningPS, origin);
+        emitLightningPathParticle(lightningPS, origin, 30);
 
         Vector2 direction = (playerInputPoint - origin).normalized;
         Debug.DrawLine(origin, playerInputPoint, Color.red, 5f);
         RayData rd = new RayData(origin, direction, magnitude);
         rd = drawPlayerChosenDirection(rd);
-        yield return wait;
+        yield return holdOn;
         for (int i = 0; i < 10; i++) {
             rd = drawRandomPathAndBounces(rd);
-            yield return wait;
+            yield return holdOn;
         }
         yield return null;
     }
@@ -60,11 +59,11 @@ public class Lightning : MonoBehaviour
             rd.hit = true;
             rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
             rd.origin = hit.point + hit.normal * 0.01f;
-            emitLightningPathParticle(lightningPS, rd.origin);// + hit2dNormal * 0.1f);
+            emitLightningPathParticle(lightningPS, rd.origin, 1);// + hit2dNormal * 0.1f);
             //if(debug) { displayDebugDrawsAndLogs(1); }
         } else {
             rd.origin += (rd.direction * rd.magnitude);
-            emitLightningPathParticle(lightningPS, rd.origin);
+            emitLightningPathParticle(lightningPS, rd.origin, 30);
         }
         return rd;
     }
@@ -76,13 +75,13 @@ public class Lightning : MonoBehaviour
             if(hit.collider != null) { // bounced off one wall into another wall
                 Debug.DrawLine(rd.origin, rd.origin + rd.direction * rd.magnitude, Color.red, 3f); print("bounced off one wall into another wall");
                 rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
-                emitLightningPathParticle(lightningPS, hit.point);
+                emitLightningPathParticle(lightningPS, hit.point, 1);
                 rd.origin = hit.point + hit.normal * 0.01f;
                 //if(debug) { displayDebugDrawsAndLogs(2); }
             } else { // bounced off wall into space
                 Debug.DrawLine(rd.origin, rd.origin + rd.direction * rd.magnitude, Color.green, 3f); print("bounced off wall into space");
                 rd.origin += (rd.direction * rd.magnitude);
-                emitLightningPathParticle(lightningPS, rd.origin);
+                emitLightningPathParticle(lightningPS, rd.origin, 30);
                 rd.hit = false;
             }
         }
@@ -94,19 +93,20 @@ public class Lightning : MonoBehaviour
                 print("random ray hit wall");
                 rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
                 rd.origin = hit.point + hit.normal * 0.01f;
-                emitLightningPathParticle(lightningPS, rd.origin);
+                emitLightningPathParticle(lightningPS, rd.origin, 1);
                 rd.hit = true;
             } else {
                 print("random ray hit space");
                 rd.origin += (rd.direction * rd.magnitude);
-                emitLightningPathParticle(lightningPS, rd.origin);
+                emitLightningPathParticle(lightningPS, rd.origin, 30);
             }
         }
         return rd;
     }
-    private void emitLightningPathParticle(ParticleSystem lightningPS, Vector2 particlePos){
+    private void emitLightningPathParticle(ParticleSystem lightningPS, Vector2 particlePos, float scale){
         ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();   // Create head EmitParams,
         emit.position = particlePos;
+        //emit.startSize3D = new Vector2(1,scale);
         lightningPS.Emit(emit, 1);
     }
     /*

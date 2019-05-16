@@ -6,7 +6,7 @@ public class SwipeInput : MonoBehaviour
 {
     public bool PCdebug = true;
     public Camera cam;
-    public int maxPower = 500;
+    private int maxPower = 30;
     [SerializeField] private Lightning Lightning;
     [SerializeField] private float deadzone = 100.0f;
     [SerializeField] private float doubleTapDelta = 0.5f;
@@ -28,6 +28,7 @@ public class SwipeInput : MonoBehaviour
         sqrDeadzone = deadzone * deadzone;
         origin = new Vector2(35,0);
         _AimPrediction = GetComponent<AimPrediction>();
+        _AimPrediction.clearParticles();
     }
 
     // Update is called once per frame
@@ -85,10 +86,10 @@ else{ UpdateMobile(); }
         Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(tp.x, tp.y, cam.nearClipPlane));
         Vector2 dir = (touchWorldPoint - origin).normalized;
         playerChargeTime = (Time.time - lastTap) * 10;
-        print("playerChargeTime: " + playerChargeTime);
+        //print("playerChargeTime: " + playerChargeTime);
         magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
         float chargeRatio = magnitude/maxPower;
-        _AimPrediction.UpdateChargeBar(origin, tp, chargeRatio);
+        _AimPrediction.UpdateChargeBar(origin, tp, playerChargeTime, chargeRatio);
         RaycastHit2D hit = Physics2D.Raycast(origin, dir, magnitude);
         if(hit.collider != null){
             Debug.DrawLine(origin, hit.point , Color.red, 3f);
@@ -99,67 +100,31 @@ else{ UpdateMobile(); }
     private void UpdateMobile(){
         if (Input.touchCount > 0){
             Touch touch = Input.GetTouch(0);
-            //Vector3 touchWorldPosition = cam.ScreenToViewportPoint(touch.position);
             Vector3 touchWorldPosition = touch.position;
             // Handle finger movements based on touch phase.
             switch (touch.phase) {
                 case TouchPhase.Began: // Record initial touch position.
-                    //startPos = touch.position;
-                    //inputPath.Add(touch.position);
                     lastTap = Time.time;
                     break;
 
                 case TouchPhase.Stationary:
                     someting(touch.position);
-                    /* 
-                    Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane));
-                    Vector2 dir = (touchWorldPoint - origin).normalized;
                     playerChargeTime = (Time.time - lastTap) * 10;
-                    print("playerChargeTime: " + playerChargeTime);
-                    magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
-                    RaycastHit2D hit = Physics2D.Raycast(origin, dir, magnitude);
-                    if(hit.collider != null){
-                        Debug.DrawLine(origin, hit.point , Color.red, 3f);
-                    } else {
-                        Debug.DrawLine(origin, origin + dir * magnitude , Color.red, 3f);
-                    }*/
+                    _AimPrediction.spawnParticles(playerChargeTime);
                     break;
                 
                 case TouchPhase.Moved: // Determine direction by comparing the current touch position with the initial one.
-                    //speedSqrMag = (touch.deltaPosition/touch.deltaTime).sqrMagnitude;
-                    //vals += speedSqrMag; numVals++;
                     someting(touch.position);
-                    //_AimPrediction.UpdateChargeBar();
-
-                    /* 
-                    Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane));
-                    Vector2 dir = (touchWorldPoint - origin).normalized;
-                    playerChargeTime = (Time.time - lastTap) * 10;
-                    print("playerChargeTime: " + playerChargeTime);
-                    magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
-                    RaycastHit2D hit = Physics2D.Raycast(origin, dir, magnitude);
-                    if(hit.collider != null){
-                        Debug.DrawLine(origin, hit.point , Color.red, 3f);
-                    } else {
-                        Debug.DrawLine(origin, origin + dir * magnitude , Color.red, 3f);
-                    }
-                    */
-                    //inputPath.Add(touch.position);
+                    _AimPrediction.clearParticles();
                     break;
 
                 case TouchPhase.Ended: // Finger released.
-                    //speedSqrMag = (touch.deltaPosition/touch.deltaTime).sqrMagnitude;
-                    //vals += speedSqrMag; numVals++;
-
-                    //inputPath.Add(touch.position);
                     float tapDeltaTime = Time.time - lastTap;
-                    print("tapDeltaTime: " + tapDeltaTime);
+                    //print("tapDeltaTime: " + tapDeltaTime);
                     playerChargeTime = (Time.time - lastTap) * 10;
                     magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
                     Lightning.zap(cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane)), magnitude);
-                    //InputPath.Clear(); // THIS FUCKS EVERYTHING UP
-
-                    ///print("Avg speed: " + vals/numVals); vals = 0f; numVals =0;
+                    _AimPrediction.clearParticles();
                     break;
             }
                 Vector2 touchWorld = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane));
