@@ -21,7 +21,6 @@ public class block : MonoBehaviour
     public void initializePositionAndMaterial(Vector2 pos){
         transform.position = pos;
         material.SetVector("_offset", pos/10);
-
-
     }
+
 }

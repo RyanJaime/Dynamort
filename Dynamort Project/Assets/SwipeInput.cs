@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SwipeInput : MonoBehaviour
 {
+    //public GameObject marker;
     public bool PCdebug = true;
     public Camera cam;
     private int maxPower = 30;
@@ -27,12 +28,12 @@ public class SwipeInput : MonoBehaviour
     {
         sqrDeadzone = deadzone * deadzone;
         origin = new Vector2(35,0);
-        _AimPrediction = GetComponent<AimPrediction>();
-        _AimPrediction.clearParticles();
+        _AimPrediction = GetComponentInChildren<AimPrediction>();
+        //_AimPrediction.clearParticles();
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         tap = doubleTap = false;
 //#if UNITY_EDITOR
@@ -84,8 +85,9 @@ else{ UpdateMobile(); }
     }
     private void someting(Vector2 tp){
         Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(tp.x, tp.y, cam.nearClipPlane));
+        //marker.transform.position = touchWorldPoint;
         Vector2 dir = (touchWorldPoint - origin).normalized;
-        playerChargeTime = (Time.time - lastTap) * 10;
+        playerChargeTime = (Time.time - lastTap) * 50;
         //print("playerChargeTime: " + playerChargeTime);
         magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
         float chargeRatio = magnitude/maxPower;
@@ -105,23 +107,24 @@ else{ UpdateMobile(); }
             switch (touch.phase) {
                 case TouchPhase.Began: // Record initial touch position.
                     lastTap = Time.time;
+                    _AimPrediction.enableParticles();
+
                     break;
 
                 case TouchPhase.Stationary:
                     someting(touch.position);
-                    playerChargeTime = (Time.time - lastTap) * 10;
-                    _AimPrediction.spawnParticles(playerChargeTime);
+                    //_AimPrediction.spawnParticles(playerChargeTime);
                     break;
                 
                 case TouchPhase.Moved: // Determine direction by comparing the current touch position with the initial one.
                     someting(touch.position);
-                    _AimPrediction.clearParticles();
+                    //_AimPrediction.clearParticles();
                     break;
 
                 case TouchPhase.Ended: // Finger released.
                     float tapDeltaTime = Time.time - lastTap;
                     //print("tapDeltaTime: " + tapDeltaTime);
-                    playerChargeTime = (Time.time - lastTap) * 10;
+                    playerChargeTime = (Time.time - lastTap) * 50;
                     magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
                     Lightning.zap(cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane)), magnitude);
                     _AimPrediction.clearParticles();

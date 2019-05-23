@@ -6,20 +6,19 @@ public class Lightning : MonoBehaviour
 {
     public bool debug = true;
     public ParticleSystem lightningPrefab;
+    public GameObject sparkPrefab;
+    public GameObject lightPrefab;
+    private ParticleSystem sparkPS;
     private ParticleSystem lightningPS;
+    
+    private Screenshake _screenshake;
     public Camera cam;
     public float fdelay = 0.1f;
     private WaitForSeconds wait, holdOn;
-    private Vector2 randomDirection, randomPoint, mixedPointDirection, previousDrawnPoint, drawnPoint, hit2dPoint, hit2dNormal,
-            currentMixedPoint,//   = headWorld, 
-            previousMixedPoint,//  = headWorld, 
-            previousRandomPoint;// = headWorld,
-    bool endPlayerInput = false;
-    float mixAmount;
-    float swipeSpeed = 0.0f;
     void Start(){
         wait = new WaitForSeconds(fdelay);
         holdOn = new WaitForSeconds(fdelay*5);
+        _screenshake = cam.GetComponent<Screenshake>();
     }
 
     public void zap(Vector2 playerInputPoint, float magnitude){  StartCoroutine(zapCo(playerInputPoint, magnitude)); }
@@ -38,6 +37,8 @@ public class Lightning : MonoBehaviour
         Vector2 origin = new Vector2(35,0);
 
         lightningPS = Instantiate(lightningPrefab, origin, Quaternion.identity);
+
+
         emitLightningPathParticle(lightningPS, origin, 30);
 
         Vector2 direction = (playerInputPoint - origin).normalized;
@@ -60,12 +61,33 @@ public class Lightning : MonoBehaviour
             rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
             rd.origin = hit.point + hit.normal * 0.01f;
             emitLightningPathParticle(lightningPS, rd.origin, 1);// + hit2dNormal * 0.1f);
-            //if(debug) { displayDebugDrawsAndLogs(1); }
+            _screenshake.increaseTrauma(0.5f, -hit.normal);
+            GameObject sparkGO = Instantiate(sparkPrefab, hit.point, Quaternion.Euler(0,0,Vector2.SignedAngle(Vector2.up,hit.normal)));
+            StartCoroutine(spawnLight(hit.point));
+            
+            
+            ParticleSystem spark = sparkGO.GetComponent<ParticleSystem>();
+            spark.Play();
+            Destroy(sparkGO,spark.main.duration + spark.main.startLifetime.constantMax);
+
         } else {
             rd.origin += (rd.direction * rd.magnitude);
             emitLightningPathParticle(lightningPS, rd.origin, 30);
         }
         return rd;
+    }
+    private IEnumerator spawnLight(Vector3 hit){
+        GameObject lightGO = Instantiate(lightPrefab, new Vector3(hit.x, hit.y, -10), Quaternion.identity);
+        Light light = lightGO.GetComponent<Light>();
+        float t = 0;
+        float startIntensity = light.intensity;
+        while(light.intensity > 0){
+            light.intensity = Mathf.SmoothStep(startIntensity, 0, t);
+            t += Time.deltaTime;
+            yield return wait;
+        }
+        Destroy(lightGO);
+        yield return null;
     }
     private RayData drawRandomPathAndBounces(RayData rd){
         print("rd.hit: " + rd.hit);
@@ -77,7 +99,13 @@ public class Lightning : MonoBehaviour
                 rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
                 emitLightningPathParticle(lightningPS, hit.point, 1);
                 rd.origin = hit.point + hit.normal * 0.01f;
-                //if(debug) { displayDebugDrawsAndLogs(2); }
+                _screenshake.increaseTrauma(0.5f, -hit.normal);
+
+                StartCoroutine(spawnLight(hit.point));
+                GameObject sparkGO = Instantiate(sparkPrefab, hit.point, Quaternion.Euler(0,0,Vector2.SignedAngle(Vector2.up,hit.normal)));
+                ParticleSystem spark = sparkGO.GetComponent<ParticleSystem>();
+                spark.Play();
+                Destroy(sparkGO,spark.main.duration + spark.main.startLifetime.constantMax);
             } else { // bounced off wall into space
                 Debug.DrawLine(rd.origin, rd.origin + rd.direction * rd.magnitude, Color.green, 3f); print("bounced off wall into space");
                 rd.origin += (rd.direction * rd.magnitude);
@@ -94,6 +122,13 @@ public class Lightning : MonoBehaviour
                 rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
                 rd.origin = hit.point + hit.normal * 0.01f;
                 emitLightningPathParticle(lightningPS, rd.origin, 1);
+                _screenshake.increaseTrauma(0.5f, -hit.normal);
+
+                StartCoroutine(spawnLight(hit.point));
+                GameObject sparkGO = Instantiate(sparkPrefab, hit.point, Quaternion.Euler(0,0,Vector2.SignedAngle(Vector2.up,hit.normal)));
+                ParticleSystem spark = sparkGO.GetComponent<ParticleSystem>();
+                spark.Play();
+                Destroy(sparkGO,spark.main.duration + spark.main.startLifetime.constantMax);
                 rd.hit = true;
             } else {
                 print("random ray hit space");
@@ -104,10 +139,11 @@ public class Lightning : MonoBehaviour
         return rd;
     }
     private void emitLightningPathParticle(ParticleSystem lightningPS, Vector2 particlePos, float scale){
-        ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams();   // Create head EmitParams,
+        ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams(); 
         emit.position = particlePos;
         //emit.startSize3D = new Vector2(1,scale);
         lightningPS.Emit(emit, 1);
+        
     }
     /*
     private void displayDebugDrawsAndLogs(int c){
