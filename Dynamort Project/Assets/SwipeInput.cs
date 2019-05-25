@@ -7,35 +7,20 @@ public class SwipeInput : MonoBehaviour
     //public GameObject marker;
     public bool PCdebug = true;
     public Camera cam;
-    private int maxPower = 30;
-    [SerializeField] private Lightning Lightning;
-    [SerializeField] private float deadzone = 100.0f;
-    [SerializeField] private float doubleTapDelta = 0.5f;
-    private bool tap, doubleTap;
-    private Vector2 swipeDelta, startTouch, endTouch;
-    private float lastTap;
-    private float sqrDeadzone;
-
-    public bool Tap { get { return tap; } }
-    public bool DoubleTap { get { return doubleTap; } }
-    public Vector2 SwipeDelta { get { return swipeDelta; } }
-
-    Vector2 origin;
-    float playerChargeTime, magnitude;
+    private int maxPower = 100;
+    [SerializeField] private Lightning _Lightning;
+    private Vector2 origin;
+    private float lastTap, playerChargeTime, magnitude;
     
     private AimPrediction _AimPrediction;
     void Start()
     {
-        sqrDeadzone = deadzone * deadzone;
         origin = new Vector2(35,0);
         _AimPrediction = GetComponentInChildren<AimPrediction>();
-        //_AimPrediction.clearParticles();
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
-        tap = doubleTap = false;
 //#if UNITY_EDITOR
 if(PCdebug){ UpdateStandalone(); }
 //#else
@@ -43,46 +28,8 @@ else{ UpdateMobile(); }
 //#endif
         
     }
-    private void UpdateStandalone(){
-        /* 
-            if (Input.GetMouseButtonDown(0)){
-                tap = true;
-                startTouch = Input.mousePosition;
-                path.Add(startTouch);
-                //doubleTap = Time.time - lastTap < doubleTapDelta;
-                lastTap = Time.time;
-            }
-            else if (Input.GetMouseButton(0)){ // Input held down
-                // mod 0.05 comes out to about every 0.1s
-                if((Time.time)%0.05 < 0.01 && (Time.time)%0.05 > -0.01){
-                    path.Add(Input.mousePosition);
-                }
-            }
-            else if (Input.GetMouseButtonUp(0)){
-                print("up");
-                endTouch = Input.mousePosition;
-                path.Add(endTouch);
-                drawSwipeRay(startTouch, endTouch);
-                float tapDeltaTime = Time.time - lastTap;
-                //Lightning.zap(path, tapDeltaTime);
-                startTouch = swipeDelta = Vector2.zero;
-                path.Clear();
-            }
-            swipeDelta = Vector2.zero;
-
-            if(startTouch != Vector2.zero && Input.GetMouseButton(0)){
-                swipeDelta = (Vector2)Input.mousePosition - startTouch;
-                //print("swipeDelta: " + swipeDelta);
-            }
-            if(swipeDelta.sqrMagnitude > sqrDeadzone){
-                //float x = swipeDelta.x, y = swipeDelta.y; print("swipe(x,y): (" + x + "," + y + ")");
-                //print("swipeDelta: " + swipeDelta);
-            }
-            */
-    }
-    private void increaseMaxPower(){
-        //maxPower
-    }
+    private void UpdateStandalone(){}
+    private void increaseMaxPower(){}
     private void someting(Vector2 tp){
         Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(tp.x, tp.y, cam.nearClipPlane));
         //marker.transform.position = touchWorldPoint;
@@ -90,14 +37,10 @@ else{ UpdateMobile(); }
         playerChargeTime = (Time.time - lastTap) * 50;
         //print("playerChargeTime: " + playerChargeTime);
         magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
-        float chargeRatio = magnitude/maxPower;
-        _AimPrediction.UpdateChargeBar(origin, tp, playerChargeTime, chargeRatio);
-        RaycastHit2D hit = Physics2D.Raycast(origin, dir, magnitude);
-        if(hit.collider != null){
-            Debug.DrawLine(origin, hit.point , Color.red, 3f);
-        } else {
-            Debug.DrawLine(origin, origin + dir * magnitude , Color.red, 3f);
-        }
+        _AimPrediction.UpdateChargeBar(origin, tp, playerChargeTime, (magnitude/maxPower));
+        /* RaycastHit2D hit = Physics2D.Raycast(origin, dir, magnitude);
+        if(hit.collider != null){ Debug.DrawLine(origin, hit.point , Color.red, 3f); }
+        else { Debug.DrawLine(origin, origin + dir * magnitude , Color.red, 3f); } */
     }
     private void UpdateMobile(){
         if (Input.touchCount > 0){
@@ -107,18 +50,15 @@ else{ UpdateMobile(); }
             switch (touch.phase) {
                 case TouchPhase.Began: // Record initial touch position.
                     lastTap = Time.time;
-                    _AimPrediction.enableParticles();
-
+                    _AimPrediction.toggleParticles(true);
                     break;
 
                 case TouchPhase.Stationary:
                     someting(touch.position);
-                    //_AimPrediction.spawnParticles(playerChargeTime);
                     break;
                 
                 case TouchPhase.Moved: // Determine direction by comparing the current touch position with the initial one.
                     someting(touch.position);
-                    //_AimPrediction.clearParticles();
                     break;
 
                 case TouchPhase.Ended: // Finger released.
@@ -126,13 +66,13 @@ else{ UpdateMobile(); }
                     //print("tapDeltaTime: " + tapDeltaTime);
                     playerChargeTime = (Time.time - lastTap) * 50;
                     magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
-                    Lightning.zap(cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane)), magnitude);
-                    _AimPrediction.clearParticles();
+                    StartCoroutine(_Lightning.zap(cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane)), magnitude));
+                    _AimPrediction.toggleParticles(false);
                     break;
             }
-                Vector2 touchWorld = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane));
-                Vector2 touchDeltaPosWorld = cam.ScreenToWorldPoint(new Vector3((touch.position - touch.deltaPosition).x, (touch.position - touch.deltaPosition).y, cam.nearClipPlane));
-                Debug.DrawLine(touchWorld, touchDeltaPosWorld, Color.red, 2f);
+                //Vector2 touchWorld = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane));
+                //Vector2 touchDeltaPosWorld = cam.ScreenToWorldPoint(new Vector3((touch.position - touch.deltaPosition).x, (touch.position - touch.deltaPosition).y, cam.nearClipPlane));
+                //Debug.DrawLine(touchWorld, touchDeltaPosWorld, Color.red, 2f);
         }
     }
 }

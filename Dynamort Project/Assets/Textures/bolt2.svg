@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="312.20834mm"
-   height="534.45831mm"
-   viewBox="0 0 312.20834 534.45831"
+   width="28.40835mm"
+   height="39.871296mm"
+   viewBox="0 0 28.40835 39.871295"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="mobileBG.svg">
+   sodipodi:docname="bolt2.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,11 +25,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="289.8354"
-     inkscape:cy="1022.2035"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="-12.177605"
+     inkscape:cy="80.377701"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1003"
@@ -52,23 +52,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(7.1815481,378.44349)" />
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2"
-     style="display:inline"
-     transform="translate(13.229167,382.88992)">
+     transform="translate(-52.561275,-19.228125)">
     <path
-       style="fill:#000000;stroke-width:3.72362757"
-       d="M -100 -100 L -100 2120 L 1280 2120 L 1280 -100 L -100 -100 z M 140.42188 70 L 1039.5781 70 C 1078.5916 70 1110 101.40837 1110 140.42188 L 1110 1659.5781 C 1110 1698.5916 1078.5916 1730 1039.5781 1730 L 140.42188 1730 C 101.40837 1730 70 1698.5916 70 1659.5781 L 70 140.42188 C 70 101.40837 101.40837 70 140.42188 70 z M 138.16016 1750 L 1041.8398 1750 C 1079.6002 1750 1110 1780.3998 1110 1818.1602 L 1110 1881.8398 C 1110 1919.6002 1079.6002 1950 1041.8398 1950 L 138.16016 1950 C 100.39982 1950 70 1919.6002 70 1881.8398 L 70 1818.1602 C 70 1780.3998 100.39982 1750 138.16016 1750 z "
-       transform="matrix(0.26458333,0,0,0.26458333,-13.229167,-382.88992)"
-       id="rect134" />
+       style="fill:#ffffff;stroke:#ffffff"
+       d="m 74.714311,41.978187 -10.02261,16.865805 0.4009,-12.455857 -4.017352,0.267269 0.676492,-12.819412 v 0 h -7.056076 v -12.168 L 53.492955,19.865778 80.169,19.732142 69.235281,42.245459 Z"
+       id="path63"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccscccccc" />
   </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer3"
-     inkscape:label="Layer 3"
-     style="display:inline"
-     transform="translate(13.229167,382.88992)" />
 </svg>

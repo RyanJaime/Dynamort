@@ -4783,4 +4783,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e1ded99c9a991c43b4110e28f00ca3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DieInThisManySeconds: 5
+  DieInThisManySeconds: 10
