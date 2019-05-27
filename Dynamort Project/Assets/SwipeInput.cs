@@ -19,7 +19,7 @@ public class SwipeInput : MonoBehaviour
         _AimPrediction = GetComponentInChildren<AimPrediction>();
     }
 
-    void FixedUpdate()
+    void Update()
     {
 //#if UNITY_EDITOR
 if(PCdebug){ UpdateStandalone(); }

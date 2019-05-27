@@ -21,7 +21,7 @@ public class AimPrediction : MonoBehaviour
         predictionPS = AimPredictionGO.GetComponent<ParticleSystem>();
         collisionEvents = new List<ParticleCollisionEvent>();
         ratioTextTMPUGUI = ratioTextGO.GetComponent<TMPro.TextMeshProUGUI>();
-        currentChargebar.rectTransform.localScale = new Vector3(1,0,1);
+        currentChargebar.rectTransform.localScale = new Vector3(0,1,1);
     }
 
     public void UpdateChargeBar(Vector2 originWorld, Vector2 endWorld, float playerChargeTime, float chargeRatio){
@@ -36,7 +36,7 @@ public class AimPrediction : MonoBehaviour
         Quaternion firstHitAngle = Quaternion.Euler(0,0,Vector2.SignedAngle(Vector2.up,dir));
         predictionPS.transform.rotation = firstHitAngle;
         var m = predictionPS.main;
-        currentChargebar.rectTransform.localScale = new Vector3(1,chargeRatio,1);
+        currentChargebar.rectTransform.localScale = new Vector3(chargeRatio,1,1);
         ratioTextTMPUGUI.text = (chargeRatio*100).ToString("F0") + '%';
     }
     public void toggleParticles(bool b){

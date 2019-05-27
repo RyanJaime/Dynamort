@@ -33,6 +33,7 @@ public class Lightning : MonoBehaviour
     }
 
     public IEnumerator zap(Vector2 playerInputPoint, float magnitude){
+        print("zip");
         Vector2 origin = new Vector2(35,0);
         lightningPS = Instantiate(lightningPrefab, origin, Quaternion.identity);
         emitLightningPathParticle(lightningPS, origin, 30);
@@ -54,7 +55,7 @@ public class Lightning : MonoBehaviour
 
         if(hit.collider != null) {
             if(hit.collider.gameObject.GetComponent<Battery>() != null) {
-                _Battery.increaseCharge(0.2f);
+                StartCoroutine(_Battery.increaseCharge(0.34f));
                 rd.hitBattery = true;
             }
             rd.hit = true;
@@ -76,8 +77,8 @@ public class Lightning : MonoBehaviour
 
             if(hit.collider != null) { // bounced off one wall into another wall //Debug.DrawLine(rd.origin, rd.origin + rd.direction * rd.magnitude, Color.red, 3f);
                 if(hit.collider.gameObject.GetComponent<Battery>() != null) {
-                _Battery.increaseCharge(0.2f);
-                rd.hitBattery = true;
+                    StartCoroutine(_Battery.increaseCharge(0.34f));
+                    rd.hitBattery = true;
                 }
                 rd.hit = true;
                 rd.direction = Vector2.Reflect((hit.point - rd.origin).normalized, hit.normal);
@@ -99,7 +100,7 @@ public class Lightning : MonoBehaviour
 
             if(hit.collider != null) {
                 if(hit.collider.gameObject.GetComponent<Battery>() != null) {
-                    _Battery.increaseCharge(0.2f);
+                    StartCoroutine(_Battery.increaseCharge(0.34f));
                     rd.hitBattery = true;
                 }
                 rd.hit = true;
