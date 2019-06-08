@@ -39,4 +39,8 @@ public class StartMenu : MonoBehaviour
         desiredPosition = -menuPositions[id];
         print("desiredPosition: " + desiredPosition);
     }
+    public void selectLevel(LevelData ld){
+        PersistentData.SelectedLevelObject = ld;
+        StartGame();
+    }
 }

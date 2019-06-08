@@ -1,30 +1,64 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.IO; // File
+using System.Linq; // byte array concat
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class levelGenerator : MonoBehaviour
 {
-    public GameObject block;
-    void Start()
-    {
-        //FF = 255 = 1111 1111
-        //byte[] bytes = new byte[]{0xff, 0xfe, 0xfc, 0xf8};
-        //byte[] bytes = new byte[]{0x0,0x0,0x0,0x0,0x0,0x0,0xf8,0xfc,0xfe, 0xff};
-        byte[] bytes = new byte[]{0xE7, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xff};
-        //byte[] bytes = new byte[]{0xc3, 0xcf, 0xc7, 0xf7, 0x87, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xff};
-        //byte[] bytes = new byte[]{0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x40, 0x40, 0x40, 0x40, 0x00, 0x00, 0x00}; low right wall, up left wall
-        for(int i=0; i < bytes.Length; i++){
-            for(int j=0; j < 8; j++){
-                if(getBit(bytes[i], j)){
-                    Instantiate(block, new Vector2((7-j)*10,i*10),Quaternion.identity);
+    public string filePath = "/Levels/4.txt";
+    public Texture2D texture;
+    public GameObject startingPoint, block, Battery;
+    public Camera CameraMain;
+    public SwipeInput _SwipeInput;
+    public RectTransform UIbar;
+    [Header("One Battery")]
+    public GameObject BatteryGameOject;
+    [Header("One Starting Point")]
+    public GameObject startGameObject;
+    void Start() {
+        storeLevelDataToFile(texture, Application.dataPath + filePath);
+        loadLevel(PersistentData.SelectedLevelObject);
+    }
+    private void storeLevelDataToFile(Texture2D tex, string path) {
+        byte[] dimensions = new byte[]{(byte)(tex.width), (byte)(tex.height)};
+        File.WriteAllBytes(path, (tex.GetRawTextureData()).Concat(dimensions).ToArray());
+    }
+    private void loadLevel(LevelData levelObj){
+        _SwipeInput.setOriginForNewLevel(getLevelDataFromFile(levelObj.LevelBytes));
+        
+    }
+    private Vector2 getLevelDataFromFile(byte[] levelBytes){
+        byte width = (byte)(levelBytes[levelBytes.Length-2]);
+        byte height = (byte)(levelBytes[levelBytes.Length-1]);
+        Vector2 start = Vector2.zero;
+        for(int i = 0; i < height; i++) {
+            for(int j = 0; j < width; j++) {
+                int index = (width * i * 3 + (j * 3));
+                print(width + " * " + i + ": " + width * i + " j: " + j + " index: " + index);
+                if (levelBytes[index] == 0xff) { Instantiate(block, new Vector2(j*10, i*10),Quaternion.identity); } // red means block
+                else if (levelBytes[index] == 0xbf) {
+                    BatteryGameOject.transform.position = new Vector2(j*10, i*10);
+                }
+                else if (levelBytes[index] == 0x7f) {
+                    start = new Vector2(j*10, i*10 + 5);
+                    startGameObject.transform.position = start;
                 }
             }
         }
+        centerCameraOnPuzzle(width, height);
+        return start;
     }
-
-    public bool getBit(byte b, int bitNumber)
-    {
-        return ((b & (1 << bitNumber)) != 0);
-
+    private void centerCameraOnPuzzle(byte w, byte h){
+        w *= 10;
+        h *= 10;
+        print("UIbar.rect.height: " + UIbar.rect.height);
+        float screenH = Screen.height - UIbar.rect.height; // 125 for top UI bar
+        float screenRatio = (float)Screen.width / screenH; 
+        float targetRatio = w / h;
+        CameraMain.transform.position = new Vector3(w/2 - 5,(h + (h - h*screenH/Screen.height))/2,CameraMain.transform.position.z); // -5 to account for scale of blocks(10)
+        if (screenRatio >= targetRatio) { CameraMain.orthographicSize = h/2; }
+        else { CameraMain.orthographicSize = h / 2 * targetRatio / screenRatio; }
     }
+    
 }

@@ -24,13 +24,11 @@ public class Screenshake : MonoBehaviour
             float noiseX = Mathf.PerlinNoise(t, t) * 2 - 1;
             float noiseY = Mathf.PerlinNoise(t*2, t*2) * 2 - 1;
             float offsetX = maxShake * trauma*trauma * noiseX + xInfluence;
-            //float offsetX = xInfluence;
-            float offsetY = maxShake * trauma*trauma*trauma * noiseY + yInfluence;
-            //float offsetY = yInfluence;
+            float offsetY = maxShake * trauma*trauma * noiseY + yInfluence;
             gameObject.transform.position = startPos + new Vector3(offsetX,offsetY,0);
             trauma -= Time.deltaTime*1.5f;
-            xInfluence -= Time.deltaTime;
-            yInfluence -= Time.deltaTime;
+            xInfluence *= trauma;// -= Time.deltaTime*1.5f;
+            yInfluence *= trauma;//-= Time.deltaTime*1.5f;
 
             float noiseRotZ = Mathf.PerlinNoise(t*3, t*3) * 2 - 1;
             float offsetRotZ = maxShake * trauma * noiseRotZ;
@@ -44,7 +42,7 @@ public class Screenshake : MonoBehaviour
         }
     }
     public void increaseTrauma(float amount, Vector2 bounceDirection){
-        if(trauma < 1) { trauma += amount; }
+        if(trauma + amount < 1) { trauma += amount; }
         if (Mathf.Abs(xInfluence) < 1) { xInfluence += bounceDirection.x * 0.5f; }
         if (Mathf.Abs(yInfluence) < 1) { yInfluence += bounceDirection.y * 0.5f; }
     }

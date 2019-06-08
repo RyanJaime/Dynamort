@@ -7,7 +7,8 @@ public class Lightning : MonoBehaviour
     public ParticleSystem lightningPrefab;
     public GameObject sparkPrefab, lightPrefab, BatteryGO;
     private ParticleSystem lightningPS;
-    private Battery _Battery;
+    public Battery _Battery;
+    public levelGenerator _levelGenerator;
     
     private Screenshake _Screenshake;
     public Camera cam;
@@ -29,12 +30,13 @@ public class Lightning : MonoBehaviour
         wait = new WaitForSeconds(fdelay);
         holdOn = new WaitForSeconds(fdelay*5);
         _Screenshake = cam.GetComponent<Screenshake>();
-        _Battery = BatteryGO.GetComponent<Battery>();
+        BatteryGO = _levelGenerator.Battery;
+        _Battery = BatteryGO.GetComponentInChildren<Battery>();
     }
 
-    public IEnumerator zap(Vector2 playerInputPoint, float magnitude){
+    public IEnumerator zap(Vector2 startingPoint, Vector2 playerInputPoint, float magnitude){
         print("zip");
-        Vector2 origin = new Vector2(35,0);
+        Vector2 origin = startingPoint;
         lightningPS = Instantiate(lightningPrefab, origin, Quaternion.identity);
         emitLightningPathParticle(lightningPS, origin, 30);
 
@@ -54,7 +56,7 @@ public class Lightning : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(rd.origin, rd.direction, rd.magnitude);
 
         if(hit.collider != null) {
-            if(hit.collider.gameObject.GetComponent<Battery>() != null) {
+            if(hit.collider.gameObject.GetComponentInChildren<Battery>() != null) {
                 StartCoroutine(_Battery.increaseCharge(0.34f));
                 rd.hitBattery = true;
             }
@@ -76,7 +78,7 @@ public class Lightning : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(rd.origin, rd.direction, rd.magnitude);
 
             if(hit.collider != null) { // bounced off one wall into another wall //Debug.DrawLine(rd.origin, rd.origin + rd.direction * rd.magnitude, Color.red, 3f);
-                if(hit.collider.gameObject.GetComponent<Battery>() != null) {
+                if(hit.collider.gameObject.GetComponentInChildren<Battery>() != null) {
                     StartCoroutine(_Battery.increaseCharge(0.34f));
                     rd.hitBattery = true;
                 }
@@ -99,7 +101,7 @@ public class Lightning : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(rd.origin, rd.direction, rd.magnitude);
 
             if(hit.collider != null) {
-                if(hit.collider.gameObject.GetComponent<Battery>() != null) {
+                if(hit.collider.gameObject.GetComponentInChildren<Battery>() != null) {
                     StartCoroutine(_Battery.increaseCharge(0.34f));
                     rd.hitBattery = true;
                 }

@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using TMPro;
 public class SwipeInput : MonoBehaviour
 {
     //public GameObject marker;
+    public int numZaps = 5;
+    public GameObject Reticle;
+    public TextMeshProUGUI numZapsText;
     public bool PCdebug = true;
     public Camera cam;
     private int maxPower = 100;
@@ -13,10 +16,14 @@ public class SwipeInput : MonoBehaviour
     private float lastTap, playerChargeTime, magnitude;
     
     private AimPrediction _AimPrediction;
-    void Start()
-    {
-        origin = new Vector2(35,0);
+    private FadeReticle _FadeReticle;
+    void Start() {
         _AimPrediction = GetComponentInChildren<AimPrediction>();
+        _FadeReticle = Reticle.GetComponent<FadeReticle>();
+    }
+    public void setOriginForNewLevel(Vector2 pos){
+        transform.position = origin = pos;
+        print("origin: " + origin);
     }
 
     void Update()
@@ -32,15 +39,10 @@ else{ UpdateMobile(); }
     private void increaseMaxPower(){}
     private void someting(Vector2 tp){
         Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(tp.x, tp.y, cam.nearClipPlane));
-        //marker.transform.position = touchWorldPoint;
         Vector2 dir = (touchWorldPoint - origin).normalized;
         playerChargeTime = (Time.time - lastTap) * 50;
-        //print("playerChargeTime: " + playerChargeTime);
         magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
         _AimPrediction.UpdateChargeBar(origin, tp, playerChargeTime, (magnitude/maxPower));
-        /* RaycastHit2D hit = Physics2D.Raycast(origin, dir, magnitude);
-        if(hit.collider != null){ Debug.DrawLine(origin, hit.point , Color.red, 3f); }
-        else { Debug.DrawLine(origin, origin + dir * magnitude , Color.red, 3f); } */
     }
     private void UpdateMobile(){
         if (Input.touchCount > 0){
@@ -51,6 +53,8 @@ else{ UpdateMobile(); }
                 case TouchPhase.Began: // Record initial touch position.
                     lastTap = Time.time;
                     _AimPrediction.toggleParticles(true);
+                    Reticle.transform.position = touchWorldPosition;
+                    _FadeReticle.fade(true);
                     break;
 
                 case TouchPhase.Stationary:
@@ -59,15 +63,17 @@ else{ UpdateMobile(); }
                 
                 case TouchPhase.Moved: // Determine direction by comparing the current touch position with the initial one.
                     someting(touch.position);
+                    Reticle.transform.position = touchWorldPosition;
                     break;
 
                 case TouchPhase.Ended: // Finger released.
                     float tapDeltaTime = Time.time - lastTap;
-                    //print("tapDeltaTime: " + tapDeltaTime);
+                    _FadeReticle.fade(false);
                     playerChargeTime = (Time.time - lastTap) * 50;
                     magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
-                    StartCoroutine(_Lightning.zap(cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane)), magnitude));
+                    StartCoroutine(_Lightning.zap(transform.position, cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane)), magnitude));
                     _AimPrediction.toggleParticles(false);
+                    numZapsText.text = (--numZaps).ToString();
                     break;
             }
                 //Vector2 touchWorld = cam.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, cam.nearClipPlane));

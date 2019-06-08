@@ -21,5 +21,5 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _chargePercent: 0.68
+    - _chargePercent: 0.999345
     m_Colors: []
