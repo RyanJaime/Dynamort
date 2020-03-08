@@ -24,7 +24,7 @@ public class Battery : MonoBehaviour
         chargePercent = 0.0f;
         energyGradientMat = gameObject.GetComponent<Image>().material;
         UICharge = uicharge.GetComponent<RectTransform>();
-        UIChargeText = uichargetext.GetComponent<TextMeshProUGUI>();;
+        UIChargeText = uichargetext.GetComponent<TextMeshProUGUI>();
         FillColor = uicharge.GetComponent<SVGImage>();
         tint = FillColor.GetComponent<Material>();
         print(UICharge + " " + UIChargeText + " " + FillColor);

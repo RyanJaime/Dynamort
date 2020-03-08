@@ -23,6 +23,7 @@ public class levelGenerator : MonoBehaviour
     private void storeLevelDataToFile(Texture2D tex, string path) {
         byte[] dimensions = new byte[]{(byte)(tex.width), (byte)(tex.height)};
         File.WriteAllBytes(path, (tex.GetRawTextureData()).Concat(dimensions).ToArray());
+        
     }
     private void loadLevel(LevelData levelObj){
         _SwipeInput.setOriginForNewLevel(getLevelDataFromFile(levelObj.LevelBytes));
@@ -58,7 +59,7 @@ public class levelGenerator : MonoBehaviour
         float targetRatio = w / h;
         CameraMain.transform.position = new Vector3(w/2 - 5,(h + (h - h*screenH/Screen.height))/2,CameraMain.transform.position.z); // -5 to account for scale of blocks(10)
         if (screenRatio >= targetRatio) { CameraMain.orthographicSize = h/2; }
-        else { CameraMain.orthographicSize = h / 2 * targetRatio / screenRatio; }
+        else { CameraMain.orthographicSize = h / 2 * targetRatio / screenRatio; print("PINTO"); }
     }
     
 }

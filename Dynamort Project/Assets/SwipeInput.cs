@@ -26,15 +26,15 @@ public class SwipeInput : MonoBehaviour
         print("origin: " + origin);
     }
 
-    void Update()
-    {
+    void Update() {
 //#if UNITY_EDITOR
-if(PCdebug){ UpdateStandalone(); }
+    //if(PCdebug){ UpdateStandalone(); }
 //#else
-else{ UpdateMobile(); }
+    //else
+    { UpdateMobile(); }
 //#endif
-        
     }
+
     private void UpdateStandalone(){}
     private void increaseMaxPower(){}
     private void someting(Vector2 tp){

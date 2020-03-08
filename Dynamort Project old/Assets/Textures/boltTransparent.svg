@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32mm"
+   height="32mm"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="boltTransparent.svg">
+  <defs
+     id="defs2">
+    <pattern
+       y="0"
+       x="0"
+       height="6"
+       width="6"
+       patternUnits="userSpaceOnUse"
+       id="EMFhbasepattern" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.3360373"
+     inkscape:cx="38.351652"
+     inkscape:cy="59.469004"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1003"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     objecttolerance="20"
+     gridtolerance="10" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-50.152188,-26.911575)">
+    <path
+       style="fill:#ff00ff;fill-opacity:1;fill-rule:nonzero;stroke:#ffffff;stroke-width:1.00892925px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 18.1875 0.50390625 C 8.4452613 0.50390625 0.50390625 8.880958 0.50390625 19.15625 L 0.50390625 101.78906 C 0.50390625 112.15069 8.4452613 120.43945 18.1875 120.43945 L 102.75781 120.43945 C 112.58192 120.43945 120.43945 112.15069 120.43945 101.78906 L 120.43945 19.15625 C 120.43945 8.880958 112.58192 0.50390625 102.75781 0.50390625 L 18.1875 0.50390625 z M 11.191406 8.7539062 L 109.75391 8.7539062 L 73.5625 70.257812 L 91.697266 69.521484 L 58.521484 115.9668 L 59.849609 81.666016 L 34.636719 82.402344 L 48.791016 47.099609 L 15.173828 47.099609 L 15.173828 13.591797 L 11.191406 8.7539062 z "
+       transform="matrix(0.26458333,0,0,0.26458333,50.152188,26.911575)"
+       id="path11" />
+  </g>
+</svg>
