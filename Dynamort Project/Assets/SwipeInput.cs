@@ -4,7 +4,6 @@ using UnityEngine;
 using TMPro;
 public class SwipeInput : MonoBehaviour
 {
-    //public GameObject marker;
     public int numZaps = 5;
     public GameObject Reticle;
     public TextMeshProUGUI numZapsText;
@@ -27,19 +26,38 @@ public class SwipeInput : MonoBehaviour
     }
 
     void Update() {
-//#if UNITY_EDITOR
-    //if(PCdebug){ UpdateStandalone(); }
-//#else
-    //else
-    { UpdateMobile(); }
-//#endif
+#if UNITY_EDITOR
+    if(PCdebug) UpdateStandalone();
+    else UpdateMobile();
+#else
+    UpdateMobile();
+#endif
     }
 
-    private void UpdateStandalone(){}
+    private void UpdateStandalone() {
+        Vector3 touchWorldPosition = Input.mousePosition;
+        if (Input.GetMouseButtonDown(0)) { // Record initial mouse position.
+            lastTap = Time.time;
+            _AimPrediction.toggleParticles(true);
+            Reticle.transform.position = Input.mousePosition;
+            _FadeReticle.fade(true);
+        }        
+        else if (Input.GetMouseButton(0)) { // Determine direction by comparing the current mouse position with the initial one.
+            someting(touchWorldPosition);
+            Reticle.transform.position = Input.mousePosition;
+        }
+        else if (Input.GetMouseButtonUp(0)) { // LMB released.
+            _FadeReticle.fade(false);
+            playerChargeTime = (Time.time - lastTap) * 50;
+            magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
+            StartCoroutine(_Lightning.zap(transform.position, cam.ScreenToWorldPoint(new Vector3(touchWorldPosition.x, touchWorldPosition.y, cam.nearClipPlane)), magnitude));
+            _AimPrediction.toggleParticles(false);
+            numZapsText.text = (--numZaps).ToString();
+        }
+    }
     private void increaseMaxPower(){}
     private void someting(Vector2 tp){
         Vector2 touchWorldPoint = cam.ScreenToWorldPoint(new Vector3(tp.x, tp.y, cam.nearClipPlane));
-        Vector2 dir = (touchWorldPoint - origin).normalized;
         playerChargeTime = (Time.time - lastTap) * 50;
         magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;
         _AimPrediction.UpdateChargeBar(origin, tp, playerChargeTime, (magnitude/maxPower));
@@ -67,7 +85,6 @@ public class SwipeInput : MonoBehaviour
                     break;
 
                 case TouchPhase.Ended: // Finger released.
-                    float tapDeltaTime = Time.time - lastTap;
                     _FadeReticle.fade(false);
                     playerChargeTime = (Time.time - lastTap) * 50;
                     magnitude = (playerChargeTime > maxPower) ? maxPower : playerChargeTime;

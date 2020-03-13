@@ -9,13 +9,9 @@ public class Battery : MonoBehaviour
     public Transform UICharge;
     public TextMeshProUGUI UIChargeText;
     public SVGImage FillColor;
-    public Material tint;
     public GameObject uicharge, uichargetext;
-    private Material energyGradientMat;
-    public Color lowestEnergy;
-    public Color lowerEnergy;
-    public Color lowEnergy;
-    public Color highEnergy;
+    private Material energyGradientMat; //tint
+    public Color lowestEnergy, lowerEnergy, lowEnergy, highEnergy;
     void Start(){
         initializeStuff(uicharge, uichargetext);
     }
@@ -26,7 +22,7 @@ public class Battery : MonoBehaviour
         UICharge = uicharge.GetComponent<RectTransform>();
         UIChargeText = uichargetext.GetComponent<TextMeshProUGUI>();
         FillColor = uicharge.GetComponent<SVGImage>();
-        tint = FillColor.GetComponent<Material>();
+        //tint = FillColor.GetComponent<Material>();
         print(UICharge + " " + UIChargeText + " " + FillColor);
     }
     public IEnumerator increaseCharge(float percent) {

@@ -4,22 +4,16 @@ using UnityEngine;
 
 public class Screenshake : MonoBehaviour
 {
-    private float trauma = 1.0f;
-    private float maxShake = 7.0f;
+    public float maxShake = 7.0f;
+    private float trauma, xInfluence, yInfluence;
     private Vector3 startPos;
-    private Quaternion startRot;
-    private float xInfluence = 0;
-    private float yInfluence = 0;
-    void Start()
-    {
+    void Start() {
          startPos = gameObject.transform.position;
-         startRot = Quaternion.identity;
+         trauma = xInfluence = yInfluence = 0.0f;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (trauma > 0){
+    void Update() {
+        if (trauma > 0) {
             float t = Time.time;
             float noiseX = Mathf.PerlinNoise(t, t) * 2 - 1;
             float noiseY = Mathf.PerlinNoise(t*2, t*2) * 2 - 1;
@@ -34,15 +28,14 @@ public class Screenshake : MonoBehaviour
             float offsetRotZ = maxShake * trauma * noiseRotZ;
             gameObject.transform.rotation = Quaternion.Euler(0,0,offsetRotZ);
         }
-        else{
+        else {
             gameObject.transform.position = startPos;
             gameObject.transform.rotation = Quaternion.identity;
-            xInfluence = 0.0f;
-            yInfluence = 0.0f;       
+            xInfluence = yInfluence = 0.0f;       
         }
     }
-    public void increaseTrauma(float amount, Vector2 bounceDirection){
-        if(trauma + amount < 1) { trauma += amount; }
+    public void increaseTrauma(float amount, Vector2 bounceDirection) {
+        if (trauma + amount < 1) { trauma += amount; }
         if (Mathf.Abs(xInfluence) < 1) { xInfluence += bounceDirection.x * 0.5f; }
         if (Mathf.Abs(yInfluence) < 1) { yInfluence += bounceDirection.y * 0.5f; }
     }

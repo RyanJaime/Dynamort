@@ -30,7 +30,7 @@ public class Lightning : MonoBehaviour
         wait = new WaitForSeconds(fdelay);
         holdOn = new WaitForSeconds(fdelay*5);
         _Screenshake = cam.GetComponent<Screenshake>();
-        BatteryGO = _levelGenerator.Battery;
+        BatteryGO = _levelGenerator.BatteryGameOject;
         _Battery = BatteryGO.GetComponentInChildren<Battery>();
     }
 

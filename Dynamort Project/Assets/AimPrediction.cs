@@ -32,10 +32,10 @@ public class AimPrediction : MonoBehaviour
 
         Vector2 originScreen = cam.WorldToScreenPoint(new Vector3(originWorld.x, originWorld.y, cam.nearClipPlane));
         dir = (endWorld-originScreen).normalized;
-        var sh = predictionPS.shape;
+        //var sh = predictionPS.shape;
         Quaternion firstHitAngle = Quaternion.Euler(0,0,Vector2.SignedAngle(Vector2.up,dir));
         predictionPS.transform.rotation = firstHitAngle;
-        var m = predictionPS.main;
+        //var m = predictionPS.main;
         currentChargebar.rectTransform.localScale = new Vector3(chargeRatio,1,1);
         ratioTextTMPUGUI.text = (chargeRatio*100).ToString("F0") + '%';
     }

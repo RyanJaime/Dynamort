@@ -8,14 +8,12 @@ public class levelGenerator : MonoBehaviour
 {
     public string filePath = "/Levels/4.txt";
     public Texture2D texture;
-    public GameObject startingPoint, block, Battery;
     public Camera CameraMain;
     public SwipeInput _SwipeInput;
     public RectTransform UIbar;
-    [Header("One Battery")]
-    public GameObject BatteryGameOject;
-    [Header("One Starting Point")]
-    public GameObject startGameObject;
+    public GameObject block;
+    [Header("One Battery")]public GameObject BatteryGameOject;
+    [Header("One Starting Point")] public GameObject startGameObject;
     void Start() {
         storeLevelDataToFile(texture, Application.dataPath + filePath);
         loadLevel(PersistentData.SelectedLevelObject);
@@ -27,7 +25,6 @@ public class levelGenerator : MonoBehaviour
     }
     private void loadLevel(LevelData levelObj){
         _SwipeInput.setOriginForNewLevel(getLevelDataFromFile(levelObj.LevelBytes));
-        
     }
     private Vector2 getLevelDataFromFile(byte[] levelBytes){
         byte width = (byte)(levelBytes[levelBytes.Length-2]);
